@@ -106,7 +106,7 @@ public final class FalseSpirit extends SerializedLocationBossAbilityGroup {
 			}
 		}
 
-		mMania = new LapseOfReality(boss, plugin);
+		mMania = new LapseOfReality(boss, plugin); // bullet hell
 
 		List<LivingEntity> portals = new ArrayList<>(24);
 		LivingEntity ceilingPortal = null;
@@ -132,7 +132,7 @@ public final class FalseSpirit extends SerializedLocationBossAbilityGroup {
 		double passiveSpeed = .25;
 
 		if (isDelve) {
-			multiEarthshakeDuration = 30;
+			multiEarthshakeDuration = 30; //Delved Earthshake lasts for less time, but has less cd and goes faster
 			passiveCooldown = 20 * 6;
 			passiveSpeed = .3;
 		}
@@ -159,17 +159,20 @@ public final class FalseSpirit extends SerializedLocationBossAbilityGroup {
 
 		Map<Integer, BossHealthAction> events = new HashMap<>();
 
-		events.put(85, mBoss -> {
+		//Health-dependent events
+
+		events.put(85, mBoss -> { // at 85%, runs first Gates of Hell
 			mHell.run();
-			sendDialogue(1, true);
+			sendDialogue(1, true); //Component.text("The Gates open! Come forth, nithlings!", NamedTextColor.DARK_RED),
 		});
 
-		events.put(70, mBoss -> {
+		events.put(70, mBoss -> { // at 70%, does the same
 			mHell.run();
-			sendDialogue(2, true);
+			sendDialogue(2, true); //Component.text("The Gates open once more! Come forth, nithlings!", NamedTextColor.DARK_RED),
+
 		});
 
-		events.put(66, mBoss -> {
+		events.put(66, mBoss -> { //at 66%, Lapse of Reality runs at 4 speed (Lapse seems to be Shining Star from ss?) (4 spd = 4 blocks / sec?)
 			mMania.setSpeed(4);
 			mMania.run();
 
@@ -182,10 +185,10 @@ public final class FalseSpirit extends SerializedLocationBossAbilityGroup {
 				}
 			}.runTaskLater(mPlugin, mMania.cooldownTicks());
 
-			sendDialogue(3, false);
+			sendDialogue(3, false); //Component.text("I am more than the nithlings from my gates. The magic of Hallud flows through me. Battle me and perish.", NamedTextColor.DARK_RED),
 		});
 
-		events.put(33, mBoss -> {
+		events.put(33, mBoss -> { // at 33%, Lapse of realite runs again at 2 speed???
 			mMania.setSpeed(2);
 			mMania.run();
 
@@ -198,16 +201,18 @@ public final class FalseSpirit extends SerializedLocationBossAbilityGroup {
 				}
 			}.runTaskLater(mPlugin, mMania.cooldownTicks());
 
-			sendDialogue(4, false);
+			sendDialogue(4, false); //Component.text("Despite your efforts, nothingness is what you will return to. The magic of Midat is with me.", NamedTextColor.DARK_RED),
+
 		});
 
-		events.put(30, mBoss -> {
+		events.put(30, mBoss -> { // At 30%, makes another gate
 			mHell.run();
-			sendDialogue(5, true);
+			sendDialogue(5, true); //Component.text("The Gates are opened! Come forth, nithlings!", NamedTextColor.DARK_RED),
+
 		});
 
 		//Last one is the ceiling one
-		events.put(10, mBoss -> {
+		events.put(10, mBoss -> { // at 10%, ceiling gate
 			mCeilingHell.run();
 			mMania.run();
 
@@ -220,11 +225,12 @@ public final class FalseSpirit extends SerializedLocationBossAbilityGroup {
 				}
 			}.runTaskLater(mPlugin, mMania.cooldownTicks());
 
-			sendDialogue(6, true);
+			sendDialogue(6, true); //Component.text("The Final Gate opens. Meet your demise.", NamedTextColor.DARK_RED),
+
 		});
 
 		BossBarManager bossBar = new BossBarManager(boss, detectionRange, BossBar.Color.WHITE, BossBar.Overlay.NOTCHED_10, events);
-		constructBoss(phase1Spells, passiveSpells, detectionRange, bossBar, 20 * 10);
+		constructBoss(phase1Spells, passiveSpells, detectionRange, bossBar, 20 * 10); // ten sec cd?
 
 		new BukkitRunnable() {
 			int mTicks = 0;
@@ -235,10 +241,10 @@ public final class FalseSpirit extends SerializedLocationBossAbilityGroup {
 					this.cancel();
 				}
 
-				if (mSpawnLoc.distance(mBoss.getLocation()) > meleeRange) {
+				if (mSpawnLoc.distance(mBoss.getLocation()) > meleeRange) { //meleeRange = 10
 					mTicks += 10;
 
-					if (mTicks >= 20 * 5) {
+					if (mTicks >= 20 * 5) { //If more than 10 blocks away from spawnpoint for 5 sec, tp back
 						teleport(mSpawnLoc);
 						mTicks = 0;
 					}
@@ -260,7 +266,7 @@ public final class FalseSpirit extends SerializedLocationBossAbilityGroup {
 				for (Player p : players) {
 					if (p.getLocation().getY() <= 3 && mGroundMats.contains(p.getLocation().add(0, -1, 0).getBlock().getType())) {
 						Vector vel = p.getVelocity();
-						BossUtils.bossDamagePercent(mBoss, p, 0.1);
+						BossUtils.bossDamagePercent(mBoss, p, 0.1); //deals 0.1% damage per second?
 						p.setVelocity(vel);
 
 						p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_HURT_ON_FIRE, SoundCategory.PLAYERS, 1, 0.5f);
@@ -272,7 +278,7 @@ public final class FalseSpirit extends SerializedLocationBossAbilityGroup {
 			}
 		}.runTaskTimer(mPlugin, 0, 20);
 
-		sendDialogue(0, false);
+		sendDialogue(0, false); //Component.text("I am deeper than the power of Malkus... I shall take you into the nothingness from which you came.", NamedTextColor.DARK_RED),
 		for (Player player : PlayerUtils.playersInRange(mSpawnLoc, detectionRange, true)) {
 			MessagingUtils.sendBoldTitle(player, Component.text("False Spirit", NamedTextColor.RED), Component.text("Remnant of Olive", NamedTextColor.DARK_RED));
 			player.playSound(player.getLocation(), Sound.ENTITY_WITHER_SPAWN, SoundCategory.HOSTILE, 10, 0.75f);
@@ -314,7 +320,7 @@ public final class FalseSpirit extends SerializedLocationBossAbilityGroup {
 		Location loc = mBoss.getLocation();
 
 		//Heal code
-		double hp = mBoss.getHealth() + HEALTH_HEALED;
+		double hp = mBoss.getHealth() + HEALTH_HEALED; //heals 100 per death. Only 3.33% though???
 		double max = EntityUtils.getMaxHealth(mBoss);
 		mBoss.setHealth(Math.min(hp, max));
 		world.playSound(loc, Sound.ENTITY_ILLUSIONER_CAST_SPELL, SoundCategory.HOSTILE, 1, 1.25f);
@@ -345,10 +351,10 @@ public final class FalseSpirit extends SerializedLocationBossAbilityGroup {
 	public void death(@Nullable EntityDeathEvent event) {
 		List<Player> players = PlayerUtils.playersInRange(mSpawnLoc, detectionRange, true);
 
-		BossUtils.endBossFightEffects(mBoss, players, 20 * 10, true, false);
+		BossUtils.endBossFightEffects(mBoss, players, 20 * 10, true, false); // 10 sec win duration, does not remove glowing
 		changePhase(SpellManager.EMPTY, Collections.emptyList(), null);
 		teleport(mSpawnLoc);
-		sendDialogue(7, false);
+		sendDialogue(7, false); //Component.text("The Tree of Life calls. I only wish to answer...", NamedTextColor.DARK_RED)
 
 		if (event != null) {
 			event.setCancelled(true);
@@ -361,7 +367,7 @@ public final class FalseSpirit extends SerializedLocationBossAbilityGroup {
 
 			@Override
 			public void run() {
-				if (mTicks >= 20 * 5) {
+				if (mTicks >= 20 * 5) { // win cutscene waits 5 sec?
 					world.playSound(mBoss.getLocation(), Sound.ENTITY_BLAZE_DEATH, SoundCategory.HOSTILE, 10, 0);
 
 					this.cancel();
@@ -370,14 +376,14 @@ public final class FalseSpirit extends SerializedLocationBossAbilityGroup {
 					new BukkitRunnable() {
 						@Override
 						public void run() {
-							for (Player player : PlayerUtils.playersInRange(mBoss.getLocation(), detectionRange, true)) {
+							for (Player player : PlayerUtils.playersInRange(mBoss.getLocation(), detectionRange, true)) { //in theory the detection range is as large as the arena (maybe detect is a bit larger)
 								MessagingUtils.sendBoldTitle(player, Component.text("VICTORY", NamedTextColor.RED), Component.text("False Spirit, Remnant of Olive", NamedTextColor.DARK_RED));
 								player.playSound(player.getLocation(), Sound.UI_TOAST_CHALLENGE_COMPLETE, SoundCategory.HOSTILE, 100, 0.8f);
 							}
 
 							mEndLoc.getBlock().setType(Material.REDSTONE_BLOCK);
 						}
-					}.runTaskLater(mPlugin, 20 * 3);
+					}.runTaskLater(mPlugin, 20 * 3); //3 sec later get tp'ed?
 				}
 
 				if (mTicks % 10 == 0) {
@@ -393,9 +399,9 @@ public final class FalseSpirit extends SerializedLocationBossAbilityGroup {
 
 	@Override
 	public void init() {
-		final int baseHealth = 3000;
+		final int baseHealth = 3000; //3k hp
 		final int playerCount = PlayerUtils.playersInRange(mBoss.getLocation(), detectionRange, true).size();
-		mScalingCoefficient = BossUtils.healthScalingCoef(playerCount, 0.5, 0.6);
+		mScalingCoefficient = BossUtils.healthScalingCoef(playerCount, 0.5, 0.6); //this is DR, so it counts towards ehp
 		EntityUtils.setMaxHealthAndHealth(mBoss, baseHealth);
 		EntityUtils.setAttributeBase(mBoss, Attribute.GENERIC_FOLLOW_RANGE, detectionRange);
 		EntityUtils.setAttributeBase(mBoss, Attribute.GENERIC_KNOCKBACK_RESISTANCE, 1);
