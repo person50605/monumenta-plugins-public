@@ -39,7 +39,7 @@ public class LapseOfReality extends Spell {
 	private static final double SPEED = 0.8;
 	private static final double TURN_RADIUS = 0;
 	private static final int DISTANCE = 32;
-	private static final int LIFETIME_TICKS = (int) (DISTANCE / SPEED);
+	private static final int LIFETIME_TICKS = (int) (DISTANCE / SPEED); //40
 	private static final double HITBOX_LENGTH = 0.5;
 	private static final boolean COLLIDES_WITH_BLOCKS = false;
 	private static final boolean LINGERS = true;
@@ -92,10 +92,10 @@ public class LapseOfReality extends Spell {
 
 			@Override
 			public void run() {
-				if (mTicks >= 20 * 10) {
+				if (mTicks >= 20 * 10) { //lasts 10s
 					this.cancel();
 				}
-				if (mTicks % (mDelay * 5) == 0) {
+				if (mTicks % (mDelay * 5) == 0) { // launches a missile at each player every 10 or 20 ticks
 					for (Player player : players) {
 						mMissile.launch(player, player.getLocation());
 					}
@@ -111,7 +111,7 @@ public class LapseOfReality extends Spell {
 
 	@Override
 	public int cooldownTicks() {
-		return 12 * 20;
+		return 12 * 20; //Effectively a 2s cd where spirit can't fight back
 	}
 
 	public void setSpeed(int speed) {
