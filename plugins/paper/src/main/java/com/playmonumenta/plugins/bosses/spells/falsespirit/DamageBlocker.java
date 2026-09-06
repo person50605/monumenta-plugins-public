@@ -61,7 +61,7 @@ public class DamageBlocker extends Spell {
 		if (proj.getShooter() instanceof Player player) {
 			if (player.getLocation().distance(mBoss.getLocation()) > 7) {
 				//Do not do damage if farther than 7 blocks away
-				if (!(proj instanceof Trident)) {
+				if (!(proj instanceof Trident)) { //Non-gate tridents don't get reflected. In theory, they don't get blocked either.
 					Projectile deflected = (Projectile) mBoss.getWorld().spawnEntity(proj.getLocation().subtract(proj.getVelocity().normalize()), proj.getType());
 					deflected.setShooter(mBoss);
 					if (deflected instanceof Arrow arrow && proj instanceof Arrow projec) {
@@ -72,7 +72,7 @@ public class DamageBlocker extends Spell {
 						}
 					}
 					deflected.setVelocity(LocationUtils.getDirectionTo(player.getLocation().add(0, 1.25, 0), deflected.getLocation()).multiply(Math.min(MAX_DEFLECT_VELOCITY, proj.getVelocity().length())));
-					proj.remove();
+					proj.remove(); //this is within the trident check. TODO: Test if this is real or has been patched.
 				}
 			}
 		}
@@ -82,7 +82,7 @@ public class DamageBlocker extends Spell {
 	public void onHurtByEntityWithSource(DamageEvent event, Entity damager, LivingEntity source) {
 		if (source instanceof Player player) {
 			if (player.getLocation().distance(mBoss.getLocation()) > 7 || mHell.checkPortals() || mCeilingHell.checkPortals()) {
-				event.setCancelled(true);
+				event.setCancelled(true); //ah, tridents are probably tracked to the player. Might not be, though?
 
 				DamageEvent.DamageType type = event.getType();
 				if (type != DamageEvent.DamageType.FIRE && type != DamageEvent.DamageType.AILMENT) {
@@ -139,7 +139,7 @@ public class DamageBlocker extends Spell {
 	}
 
 	@Override
-	public int cooldownTicks() {
+	public int cooldownTicks() { //in theory, hitting the spirit disables attacks for 4 ticks, but I doubt that
 		return 4;
 	}
 
