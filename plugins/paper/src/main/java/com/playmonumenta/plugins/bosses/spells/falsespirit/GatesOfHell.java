@@ -27,20 +27,20 @@ public class GatesOfHell extends Spell {
 	private final List<LivingEntity> mOpenPortals = new ArrayList<>();
 
 	//Which portal number in succession (1-6)
-	int mNum;
+	int mNum; //if called at 6, will always return
 
 	public GatesOfHell(Plugin plugin, LivingEntity boss, List<LivingEntity> portals, int num) {
 		mPlugin = plugin;
 		mBoss = boss;
-		mPortals = portals;
-		mNum = num;
+		mPortals = portals; //This is a list of all spawnable locations where the portal has not been killed (does not include ceiling for normal manager). For the ceiling hell, it only includes the ceiling location.
+		mNum = num; //this is always 1 or 5 at creation
 	}
 
 	@Override
 	public void run() {
 		//Opens 1 portal at random
 		if (!mPortals.isEmpty()) {
-			openGate(mPortals.remove(FastUtils.RANDOM.nextInt(mPortals.size())));
+			openGate(mPortals.remove(FastUtils.RANDOM.nextInt(mPortals.size()))); //open a random portal and remove its location from the spawn pool
 		}
 	}
 
@@ -54,14 +54,14 @@ public class GatesOfHell extends Spell {
 		portalEntity.addScoreboardTag("PortalNum" + mNum);
 
 		Component name = portalEntity.customName();
-		List<String> names = Arrays.asList("Hallud", "Chason", "Midat", "Daath", "Keter");
+		List<String> names = Arrays.asList("Hallud", "Chason", "Midat", "Daath", "Keter"); //ceiling is the only one that can be Keter. In theory, Daath can never spawn unless False Spirit heals above a threshold. 
 		if (name == null || mNum > names.size()) {
 			MMLog.warning("Failed to summon a portal in GatesOfHell (could not process name): mNum = " + mNum);
 			return;
 		}
 		portalEntity.customName(name.append(Component.text(" - ").append(Component.text(names.get(mNum - 1)))));
 
-		mNum++;
+		mNum++; //in theory, this means that portal names are always sequential
 
 		BukkitRunnable runnable = new BukkitRunnable() {
 			@Override
@@ -76,7 +76,7 @@ public class GatesOfHell extends Spell {
 				}
 
 				com.playmonumenta.plugins.Plugin.getInstance().mEffectManager.addEffect(mBoss, PercentDamageReceived.GENERIC_NAME,
-					new PercentDamageReceived(30, -1.0));
+					new PercentDamageReceived(30, -1.0)); //boss recieves -100% damage for 30 seconds, every 20 seconds while this is alive. But, when the portal dies, it removes that effect from the boss. So, in effect, this just makes the boss invlunerable.
 			}
 		};
 
