@@ -1,3 +1,29 @@
+/**
+	15s cd
+	5s duration
+
+	Targets the player furthest from the spirit
+
+	Range is 50 blocks, but that's probably irrelevant
+
+	deals 20% or 25% (if delved)
+
+	Soul fire particles move up by 0.5 blocks every 2 ticks = 5 blocks / second (Purely cosmetic)
+
+
+
+
+**/
+
+
+
+
+
+
+
+
+
+
 package com.playmonumenta.plugins.bosses.spells.falsespirit;
 
 import com.playmonumenta.plugins.bosses.bosses.FalseSpirit;
@@ -66,21 +92,25 @@ public class SpellFlamethrower extends Spell {
 			public void run() {
 				if (((!mDelve && mTicks % 6 == 0) || (mDelve && mTicks % 4 == 0)) && mLoc.distance(target.getEyeLocation()) > 0.5) {
 					mLoc.add(target.getEyeLocation().toVector().subtract(mLoc.toVector()).normalize());
+					//mLoc += eyeloc - norm(mLoc)
+					//every 6 or 4 ticks, update the position of the beam
 				}
 
 				Location launLoc = mBoss.getLocation().add(0, 1.6f, 0);
 				Location tarLoc = mLoc.clone();
 				Location endLoc = launLoc;
-				BoundingBox box = BoundingBox.of(endLoc, 0.5, 0.5, 0.5);
-
+				BoundingBox box = BoundingBox.of(endLoc, 0.5, 0.5, 0.5); //a cube with side lengths of 0.5, checked in a line to see if it's colliding with the player
+				
+				//a vector from the boss's head towards the target player's head with a length of 0.5
 				Vector baseVect = new Vector(tarLoc.getX() - launLoc.getX(), tarLoc.getY() - launLoc.getY(), tarLoc.getZ() - launLoc.getZ()).normalize().multiply(0.5);
-
+				
+				
 				boolean blocked = false;
-				for (int i = 0; i < 100; i++) {
-					box.shift(baseVect);
+				for (int i = 0; i < 100; i++) { // flamethrower has a range of 50 blocks, then
+					box.shift(baseVect); //move the box by 0.5 blocks along the vector from the boss to the player
 					endLoc = box.getCenter().toLocation(mBoss.getWorld());
 
-					if (FastUtils.RANDOM.nextInt(3) == 0) {
+					if (FastUtils.RANDOM.nextInt(3) == 0) { // 25% chance to spawn a particle at the box's current location (makes ~25 particles, then?)
 						new PartialParticle(Particle.CLOUD, endLoc, 1, 0.02, 0.02, 0.02, 0).spawnAsEntityActive(mBoss);
 					}
 
@@ -91,12 +121,12 @@ public class SpellFlamethrower extends Spell {
 								blocks.add(endLoc.clone().add(x, y, z).getBlock());
 							}
 						}
-					}
+					} //Gets blocks in a 3x3x3 area around the box
 
 					boolean cancel = false;
 					for (Block block : blocks) {
 						if (block.getBoundingBox().overlaps(box) && !block.isLiquid()) {
-							cancel = true;
+							cancel = true; //If the block is colliding with the box and is not liquid, cancel the loop. Slabs and stairs probably do not block exactly their hitbox (see ~15 lines down if(!blocked) {   )
 							break;
 						}
 					}
@@ -105,7 +135,7 @@ public class SpellFlamethrower extends Spell {
 						blocked = true;
 						break;
 					}
-					if (endLoc.getBlock().getType().isSolid()) {
+					if (endLoc.getBlock().getType().isSolid()) { //if the box in inside a solid block, cancel
 						blocked = true;
 						break;
 					}
@@ -119,7 +149,7 @@ public class SpellFlamethrower extends Spell {
 
 				target.playSound(target.getLocation(), Sound.ENTITY_SHULKER_BULLET_HIT, SoundCategory.HOSTILE, 0.8f, 0.5f + (mTicks / 80f) * 1.5f);
 
-				if (mTicks >= mNumTicks) {
+				if (mTicks >= mNumTicks) { //mNumTicks = 20*3, so after 3 seconds 
 
 					world.playSound(target.getLocation(), Sound.BLOCK_FIRE_EXTINGUISH, SoundCategory.HOSTILE, 10f, 0);
 
@@ -144,8 +174,9 @@ public class SpellFlamethrower extends Spell {
 								mActiveRunnables.remove(this);
 							}
 
-							if (((!mDelve && mT % 6 == 0) || (mDelve && mT % 4 == 0)) && mLoc.distance(target.getEyeLocation()) > 0.5) {
+							if (((!mDelve && mT % 6 == 0) || (mDelve && mT % 4 == 0)) && mLoc.distance(target.getEyeLocation()) > 0.5) { //every 6 or 4 ticks, update beam location
 								mLoc.add(target.getEyeLocation().toVector().subtract(mLoc.toVector()).normalize());
+								//mLoc += target - norm(mLoc)
 							}
 
 							Location launLoc = mBoss.getLocation().add(0, 1.6f, 0);
@@ -157,19 +188,19 @@ public class SpellFlamethrower extends Spell {
 
 							boolean blocked = false;
 							for (int i = 0; i < 100; i++) {
-								box.shift(baseVect);
+								box.shift(baseVect); //travels along hitline again
 								endLoc = box.getCenter().toLocation(mBoss.getWorld());
-								if (FastUtils.RANDOM.nextInt(3) == 0) {
+								if (FastUtils.RANDOM.nextInt(3) == 0) { //25% to make flame particle (~25 total)
 									new PartialParticle(Particle.FLAME, endLoc, 1, 0.02, 0.02, 0.02, 0).spawnAsEntityActive(mBoss);
 								}
-								if (i % 10 == mFireLoc) {
+								if (i % 10 == mFireLoc) { //mFireLoc gets incremented each time this script is run, so it looks like the particles are moving towards the player. 10 soul fire particles
 									new PartialParticle(Particle.SOUL_FIRE_FLAME, endLoc, 3, 0.05, 0.05, 0.05, 0.05).spawnAsEntityActive(mBoss);
 								}
-								if (i % 40 == 0) {
+								if (i % 40 == 0) { //Plays this three times from three points on the line
 									world.playSound(endLoc, Sound.ENTITY_FIREWORK_ROCKET_LARGE_BLAST, SoundCategory.HOSTILE, 0.5f, 2f);
 								}
 
-								if (mT % 10 == 0) {
+								if (mT % 10 == 0) { //can dmg every half second
 									//Do damage here
 									double percentDamage = mDelve ? 0.25 : 0.2;
 									for (Player player : players) {
