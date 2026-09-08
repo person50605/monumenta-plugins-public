@@ -266,7 +266,7 @@ public final class FalseSpirit extends SerializedLocationBossAbilityGroup {
 				for (Player p : players) {
 					if (p.getLocation().getY() <= 3 && mGroundMats.contains(p.getLocation().add(0, -1, 0).getBlock().getType())) {
 						Vector vel = p.getVelocity();
-						BossUtils.bossDamagePercent(mBoss, p, 0.1); //deals 0.1% damage per second?
+						BossUtils.bossDamagePercent(mBoss, p, 0.1); //deals 0.1% damage per second? (probably 10% dmg, actually)
 						p.setVelocity(vel); //doesn't knock the player upwards
 
 						p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_HURT_ON_FIRE, SoundCategory.PLAYERS, 1, 0.5f);
