@@ -1,3 +1,21 @@
+/**
+	Spirit glows red for 1 sec before launching.
+	8 or 6 second cooldown (if delved)
+	Single target, tracks player from where they were when it started glowing red.
+	25 or 30 magic dmg (if delved)
+	Turns 4 degrees per tick?
+	Can be stopped by blocks
+	If it kills a player, it cannot target them again for a full minute.
+
+
+**/
+
+
+
+
+
+
+
 package com.playmonumenta.plugins.bosses.spells.falsespirit;
 
 import com.playmonumenta.plugins.bosses.bosses.FalseSpirit;
@@ -72,14 +90,14 @@ public class NothingnessSeeker extends SpellBaseSeekingProjectile {
 			});
 		mBoss = boss;
 		mPlugin = plugin;
-		mTimer = timer;
+		mTimer = timer; //8 or 6
 	}
 
 	@Override
 	public void run() {
 		mCooldown -= 5;
 		if (mCooldown <= 0) {
-			mCooldown = mTimer;
+			mCooldown = mTimer; //8 or 6
 
 			//List is sorted with nearest players earlier in the list, and farthest players at the end
 			List<Player> players = EntityUtils.getNearestPlayers(mBoss.getLocation(), FalseSpirit.detectionRange);
@@ -91,15 +109,15 @@ public class NothingnessSeeker extends SpellBaseSeekingProjectile {
 				new PartialParticle(Particle.VILLAGER_ANGRY, player.getLocation(), 25, 0.5, 0.5, 0.5, 0).spawnAsEntityActive(mBoss);
 			}
 
-			Bukkit.getScheduler().runTaskLater(mPlugin, () -> {
+			Bukkit.getScheduler().runTaskLater(mPlugin, () -> { //in 1 sec
 				if (!players.isEmpty()) {
 					if (players.size() > 1) {
-						Player playerTwo = players.get(players.size() - 2);
+						Player playerTwo = players.get(players.size() - 2); //2nd to last player in the list
 						if (!mNoTarget.contains(playerTwo)) {
-							launch(playerTwo, playerTwo.getEyeLocation());
+							launch(playerTwo, playerTwo.getEyeLocation()); // launch at player 2's head, tracking player 2?
 						}
 					}
-					Player playerOne = players.get(players.size() - 1);
+					Player playerOne = players.get(players.size() - 1); // last player
 					if (!mNoTarget.contains(playerOne)) {
 						launch(playerOne, playerOne.getEyeLocation());
 					}
