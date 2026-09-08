@@ -172,7 +172,7 @@ public final class FalseSpirit extends SerializedLocationBossAbilityGroup {
 
 		});
 
-		events.put(66, mBoss -> { //at 66%, Lapse of Reality runs at 4 speed (Lapse seems to be Shining Star from ss?) (4 spd = 4 blocks / sec?)
+		events.put(66, mBoss -> { //at 66%, Lapse of Reality runs at 4 speed (Lapse seems to be Shining Star from ss?) (4 spd = 4 tick delay between shots)
 			mMania.setSpeed(4);
 			mMania.run();
 
@@ -244,7 +244,7 @@ public final class FalseSpirit extends SerializedLocationBossAbilityGroup {
 				if (mSpawnLoc.distance(mBoss.getLocation()) > meleeRange) { //meleeRange = 10
 					mTicks += 10;
 
-					if (mTicks >= 20 * 5) { //If more than 10 blocks away from spawnpoint for 5 sec, tp back
+					if (mTicks >= 20 * 5) { //If more than 10 blocks away from spawnpoint for 5 sec, tp back. The boss can move
 						teleport(mSpawnLoc);
 						mTicks = 0;
 					}
@@ -267,14 +267,14 @@ public final class FalseSpirit extends SerializedLocationBossAbilityGroup {
 					if (p.getLocation().getY() <= 3 && mGroundMats.contains(p.getLocation().add(0, -1, 0).getBlock().getType())) {
 						Vector vel = p.getVelocity();
 						BossUtils.bossDamagePercent(mBoss, p, 0.1); //deals 0.1% damage per second?
-						p.setVelocity(vel);
+						p.setVelocity(vel); //doesn't knock the player upwards
 
 						p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_HURT_ON_FIRE, SoundCategory.PLAYERS, 1, 0.5f);
 						new PartialParticle(Particle.FLAME, p.getLocation(), 10, 0.5, 0.25, 0.5, 0.2).spawnAsEntityActive(boss);
 					}
 				}
 				final int playerCount = PlayerUtils.playersInRange(mBoss.getLocation(), detectionRange, true).size();
-				mScalingCoefficient = BossUtils.healthScalingCoef(playerCount, 0.5, 0.6);
+				mScalingCoefficient = BossUtils.healthScalingCoef(playerCount, 0.5, 0.6); //Updated every second?
 			}
 		}.runTaskTimer(mPlugin, 0, 20);
 
@@ -386,7 +386,7 @@ public final class FalseSpirit extends SerializedLocationBossAbilityGroup {
 					}.runTaskLater(mPlugin, 20 * 3); //3 sec later get tp'ed?
 				}
 
-				if (mTicks % 10 == 0) {
+				if (mTicks % 10 == 0) { //every ten seconds, play an explosion sound
 					world.playSound(mBoss.getLocation(), Sound.ENTITY_GENERIC_EXPLODE, SoundCategory.HOSTILE, 1, 0);
 				}
 
