@@ -1,3 +1,22 @@
+/**
+	can only be cast if a player is within 10 blocks
+	two seconds of charge time
+	knocks back players with a modifier of 1.2
+	applies -80% (?) speed and jump boost -4 to all players within 5 blocks for 5 seconds.
+	
+	the next spell can come 1 second after the knockback
+	
+
+
+
+**/
+
+
+
+
+
+
+
 package com.playmonumenta.plugins.bosses.spells.falsespirit;
 
 import com.playmonumenta.plugins.bosses.bosses.FalseSpirit;
