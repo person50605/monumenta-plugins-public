@@ -132,7 +132,7 @@ public final class FalseSpirit extends SerializedLocationBossAbilityGroup {
 		double passiveSpeed = .25;
 
 		if (isDelve) {
-			multiEarthshakeDuration = 30; //Delved Earthshake lasts for less time, but has less cd and goes faster
+			multiEarthshakeDuration = 30; //Delved Earthshake has less leniency. Everything has less cd and goes faster
 			passiveCooldown = 20 * 6;
 			passiveSpeed = .3;
 		}
@@ -151,7 +151,7 @@ public final class FalseSpirit extends SerializedLocationBossAbilityGroup {
 
 
 		List<Spell> passiveSpells = Arrays.asList(
-			new SpellPurgeNegatives(boss, 20 * 5),
+			new SpellPurgeNegatives(boss, 20 * 5), // every five sec, purge all negative pot effects and custom slow and bleed
 			new DamageBlocker(plugin, boss, mHell, mCeilingHell),
 			new SpellBlockBreak(boss, 2, 3, 2),
 			new NothingnessSeeker(plugin, boss, passiveCooldown, passiveSpeed, isDelve)
