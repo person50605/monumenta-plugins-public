@@ -1,3 +1,32 @@
+/**
+	10 sec cd
+	2.5 or 1.5 sec duration
+	has an effective radius of 2 blocks.
+	deals 45 or 40 blast damage (if delved)
+	throws players within 1 block up at 1.5 blocks / sec and players within 2 blocks up at 1 block / sec
+	throws mobs within 2 blocks up at 2 blocks / sec
+	only throws blocks up if delved
+
+	Gives 60 sec grace period to players that die to it
+
+	targets each player within 40 blocks
+
+	Yells "The Congress shall tremble!" in dark red at everyone within 75 blocks
+
+
+
+**/
+
+
+
+
+
+
+
+
+
+
+
 package com.playmonumenta.plugins.bosses.spells.falsespirit;
 
 import com.playmonumenta.plugins.bosses.bosses.FalseSpirit;
@@ -80,7 +109,7 @@ public class SpellMultiEarthshake extends Spell {
 	@Override
 	public void run() {
 		List<Player> targets = PlayerUtils.playersInRange(mSpawnLoc, 40, false);
-		List<Location> locs = new ArrayList<>(targets.size());
+		List<Location> locs = new ArrayList<>(targets.size()); //a list of each player to be targeted
 
 		for (Player target : targets) {
 			if (mNoTarget.contains(target)) {
@@ -96,7 +125,7 @@ public class SpellMultiEarthshake extends Spell {
 			final World mWorld = mBoss.getWorld();
 
 			@Override
-			public void run() {
+			public void run() { // runs every tick
 				if (mBoss.isDead() || !mBoss.isValid() || EntityUtils.isStunned(mBoss)) {
 					mBoss.setAI(true);
 					this.cancel();
@@ -105,16 +134,16 @@ public class SpellMultiEarthshake extends Spell {
 
 				for (Location playerLoc : locs) {
 					targetLocation = playerLoc;
-					if (particleCounter1 % 2 == 0) {
+					if (particleCounter1 % 2 == 0) { // every other tick
 						new PartialParticle(Particle.CAMPFIRE_COSY_SMOKE, targetLocation, 1, ((double) mRadius * 2) / 2, ((double) mRadius * 2) / 2, ((double) mRadius * 2) / 2, 0.05).spawnAsEntityActive(mBoss);
 					}
-
+					// every tick
 					new PartialParticle(Particle.BLOCK_CRACK, targetLocation, 2, mRadius / 2.0, 0.1, mRadius / 2.0, Bukkit.createBlockData(Material.STONE)).spawnAsEntityActive(mBoss);
 
-					if (particleCounter1 % 20 == 0 && particleCounter1 > 0) {
+					if (particleCounter1 % 20 == 0 && particleCounter1 > 0) { // every second after the start
 						mWorld.playSound(targetLocation, Sound.ENTITY_ZOMBIE_ATTACK_WOODEN_DOOR, SoundCategory.HOSTILE, 1f, 0.5f);
 						mWorld.playSound(targetLocation, Sound.BLOCK_GRAVEL_BREAK, SoundCategory.HOSTILE, 1f, 0.5f);
-						for (int i = 0; i < 360; i += 18) {
+						for (int i = 0; i < 360; i += 18) { //make a ring of smoke particles (1 block radius)
 							new PartialParticle(Particle.SMOKE_NORMAL, targetLocation.clone().add(FastUtils.cos(Math.toRadians(i)) * mRadius, 0.2, FastUtils.sin(Math.toRadians(i)) * mRadius), 1, 0.1, 0.1, 0.1, 0).spawnAsEntityActive(mBoss);
 						}
 						new PartialParticle(Particle.BLOCK_CRACK, targetLocation, 80, mRadius / 2.0, 0.1, mRadius / 2.0, Bukkit.createBlockData(Material.DIRT)).spawnAsEntityActive(mBoss);
@@ -122,7 +151,7 @@ public class SpellMultiEarthshake extends Spell {
 					}
 					particleCounter1++;
 
-					if (mTicks <= (mDuration - 5)) {
+					if (mTicks <= (mDuration - 5)) { // make a rumbling that gets louder the closer it is to attacking
 						mBoss.getWorld().playSound(mBoss.getLocation(), Sound.BLOCK_ENDER_CHEST_OPEN, SoundCategory.HOSTILE, 1f, 0.25f + (mTicks / 100));
 					}
 
@@ -131,7 +160,7 @@ public class SpellMultiEarthshake extends Spell {
 						double radian1 = Math.toRadians(i);
 						loc.add(FastUtils.cos(radian1) * mCurrentRadius, 0, FastUtils.sin(radian1) * mCurrentRadius);
 
-						if (particleCounter2 % 10 == 0) {
+						if (particleCounter2 % 10 == 0) { // every half second, make lava stuff in a ring?
 							new PartialParticle(Particle.LAVA, loc, 1, 0.25, 0.25, 0.25, 0.1).spawnAsEntityActive(mBoss);
 							new PartialParticle(Particle.DRIP_LAVA, mBoss.getLocation().clone().add(0, mBoss.getHeight() / 2, 0), 1, 0.25, 0.45, 0.25, 1).spawnAsEntityActive(mBoss);
 						}
@@ -141,17 +170,17 @@ public class SpellMultiEarthshake extends Spell {
 				}
 
 				mTicks++;
-				mCurrentRadius -= (mRadius / ((double) mDuration));
+				mCurrentRadius -= (mRadius / ((double) mDuration)); // ring shrinks. Goes to 0 when it procs 
 
 				if (mCurrentRadius <= 0) {
 					for (Location loc : locs) {
 						this.cancel();
 
-						if (mDelve) {
+						if (mDelve) { //only throws blocks if delved
 							ArrayList<Block> blocks = new ArrayList<>();
 
 							//Populate the blocks array with nearby blocks- logic here to get the topmost block with air above it
-							for (int x = mRadius * -1; x <= mRadius; x++) {
+							for (int x = mRadius * -1; x <= mRadius; x++) { //gets blocks in a square
 								for (int y = mRadius * -1; y <= mRadius; y++) {
 									Block selected = null;
 									Block test = mWorld.getBlockAt(loc.clone().add(x, -2, y));
@@ -196,7 +225,7 @@ public class SpellMultiEarthshake extends Spell {
 								}
 
 								Material material = b.getType();
-								if (!mIgnoredMats.contains(material) && !BlockUtils.containsWater(b) && !(b.getBlockData() instanceof Bed) && FastUtils.RANDOM.nextInt(4) > 1) {
+								if (!mIgnoredMats.contains(material) && !BlockUtils.containsWater(b) && !(b.getBlockData() instanceof Bed) && FastUtils.RANDOM.nextInt(4) > 1) { //40% chance to throw each block?
 									double x = (FastUtils.RANDOM.nextInt(5) - 2) / 10.0;
 									double z = (FastUtils.RANDOM.nextInt(5) - 2) / 10.0;
 
@@ -234,7 +263,7 @@ public class SpellMultiEarthshake extends Spell {
 						new PartialParticle(Particle.BLOCK_CRACK, loc, 200, mRadius / 2.0, 0.1, mRadius / 2.0, Bukkit.createBlockData(Material.DIRT)).spawnAsEntityActive(mBoss);
 						new PartialParticle(Particle.CAMPFIRE_COSY_SMOKE, loc, 35, mRadius / 2.0, 0.1, mRadius / 2.0, 0.1).spawnAsEntityActive(mBoss);
 
-						for (int i = 0; i < 100; i++) {
+						for (int i = 0; i < 100; i++) { // FIVE HUNDRED CIGARETTES
 							new PartialParticle(Particle.SMOKE_LARGE, loc.clone().add(-3 + FastUtils.RANDOM.nextDouble() * 6, 0.1, -3 + FastUtils.RANDOM.nextDouble() * 6), 0, 0, 1, 0, 0.2 + FastUtils.RANDOM.nextDouble() * 0.4).spawnAsEntityActive(mBoss);
 						}
 
@@ -254,7 +283,7 @@ public class SpellMultiEarthshake extends Spell {
 	}
 
 	@Override
-	public void nearbyPlayerDeath(PlayerDeathEvent event) {
+	public void nearbyPlayerDeath(PlayerDeathEvent event) { //one minute grace after being killed by this attack (and possibly near the source?)
 		mNoTarget.add(event.getEntity());
 		Bukkit.getScheduler().runTaskLater(mPlugin, () -> mNoTarget.remove(event.getEntity()), 20 * 60);
 	}
